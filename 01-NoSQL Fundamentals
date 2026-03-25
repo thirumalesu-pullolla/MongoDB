@@ -1,0 +1,253 @@
+
+# 🔵 PART 1 — NoSQL Fundamentals (Foundation for Everything)
+
+Before touching **MongoDB**, you must understand **why it even exists**.
+
+If foundation is weak → production decisions become wrong → system fails.
+
+---
+
+# 1️⃣ Why NoSQL Was Created?
+
+### Problem with Traditional SQL Databases
+
+Traditional databases like MySQL, PostgreSQL:
+
+* Strict schema (fixed columns)
+* Vertical scaling (increase server size)
+* Expensive at very large scale
+* Hard to scale globally
+
+### Real World Example
+
+Imagine:
+
+You are building a **Payment App like Paytm / PhonePe**.
+
+Users have:
+
+* name
+* email
+* KYC status
+* wallet balance
+
+But later product team says:
+
+> Add UPI IDs
+> Add reward points
+> Add transaction metadata
+> Add cashback history
+> Add device information
+
+In SQL:
+
+* You must alter tables
+* Add columns
+* Handle migrations
+* Downtime risk
+
+In NoSQL:
+
+* Just add new fields to documents
+* No schema migration required
+
+That flexibility = modern scalability.
+
+---
+
+# 2️⃣ What is NoSQL?
+
+NoSQL means:
+
+> "Not Only SQL"
+
+It does NOT mean SQL is bad.
+It means alternative storage model.
+
+NoSQL databases:
+
+* Flexible schema
+* Designed for horizontal scaling
+* Often distributed by default
+
+---
+
+# 3️⃣ Types of NoSQL Databases (Very Important)
+
+There are 4 major types:
+
+---
+
+## 🟢 1. Document Databases
+
+Example:
+
+* MongoDB
+* Couchbase
+
+Store data as JSON-like documents.
+
+Best for:
+
+* User profiles
+* Product catalogs
+* Content systems
+
+---
+
+## 🟢 2. Key-Value Databases
+
+Example:
+
+* Redis
+* Amazon DynamoDB
+
+Structure:
+
+```
+key → value
+```
+
+Best for:
+
+* Caching
+* Sessions
+* OTP storage
+* Rate limiting
+
+---
+
+## 🟢 3. Column-Family Databases
+
+Example:
+
+* Apache Cassandra
+* Apache HBase
+
+Best for:
+
+* Large analytics
+* Time-series data
+* Telecom logs
+
+---
+
+## 🟢 4. Graph Databases
+
+Example:
+
+* Neo4j
+
+Best for:
+
+* Fraud detection
+* Social networks
+* Recommendation systems
+
+---
+
+# 4️⃣ SQL vs NoSQL (INTERVIEW CRITICAL)
+
+| Feature      | SQL            | NoSQL                               |
+| ------------ | -------------- | ----------------------------------- |
+| Schema       | Fixed          | Flexible                            |
+| Scaling      | Vertical       | Horizontal                          |
+| Transactions | Strong ACID    | Usually BASE (eventual consistency) |
+| Joins        | Strong support | Limited                             |
+| Structure    | Tables         | Documents / Key-value               |
+
+---
+
+# 5️⃣ ACID vs BASE (Financial Interview Favorite)
+
+## 🟢 ACID (SQL Style)
+
+* Atomicity
+* Consistency
+* Isolation
+* Durability
+
+Used in:
+
+* Banking core transactions
+* Ledger systems
+
+---
+
+## 🟢 BASE (NoSQL Style)
+
+* Basically Available
+* Soft state
+* Eventually consistent
+
+Used in:
+
+* Social media
+* Logs
+* Analytics
+* Notification systems
+
+⚠ Important:
+
+Modern MongoDB supports ACID transactions too.
+So interviewer may test this.
+
+---
+
+# 6️⃣ CAP Theorem (VERY IMPORTANT)
+
+You cannot guarantee all 3:
+
+* Consistency
+* Availability
+* Partition tolerance
+
+In distributed systems, you choose trade-off.
+
+For example:
+
+* Banking → Consistency priority
+* Social media → Availability priority
+
+MongoDB allows tuning this based on configuration.
+
+---
+
+# 7️⃣ Real Production Architecture Example (Banking)
+
+Let’s say you're building:
+
+Digital Banking Platform
+
+### You might use:
+
+* MySQL → Core transactions
+* MongoDB → User profile + activity logs
+* Redis → Caching + session management
+* Kafka → Event streaming
+
+Why not use only MySQL?
+
+Because:
+
+* Logs grow huge
+* JSON metadata hard in relational
+* Scaling cost becomes high
+
+---
+
+# 8️⃣ When NOT to Use NoSQL
+
+Important for interviews.
+
+Do NOT use NoSQL when:
+
+* Heavy joins required
+* Strict relational integrity required
+* Complex reporting with relational queries
+
+Core ledger system? → Use SQL.
+
+Audit logs? → MongoDB good.
+
+---
