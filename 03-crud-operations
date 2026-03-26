@@ -1,0 +1,307 @@
+
+# 1️⃣ How MongoDB Runs Internally
+
+When you install MongoDB, it runs a process called:
+
+```
+mongod
+```
+
+That process:
+
+* Stores data
+* Listens on port 27017
+* Manages databases & collections
+
+Clients connect using:
+
+```
+mongo shell / Compass / Java app
+```
+
+In production:
+
+* Runs inside Docker
+* Or runs in cloud (MongoDB Atlas)
+
+---
+
+# 2️⃣ Connecting to MongoDB (Shell)
+
+After installation:
+
+```bash
+mongosh
+```
+
+Now you’re inside MongoDB shell.
+
+---
+
+# 3️⃣ Creating a Database
+
+In MongoDB:
+
+```js
+use bankDB
+```
+
+If DB doesn’t exist → it gets created automatically when you insert data.
+
+Unlike SQL:
+No `CREATE DATABASE` required.
+
+---
+
+# 4️⃣ Creating Collection (Optional)
+
+You can explicitly create:
+
+```js
+db.createCollection("users")
+```
+
+But MongoDB auto-creates collection on first insert.
+
+---
+
+# 5️⃣ INSERT Operation (Create)
+
+Let’s insert a user.
+
+```js
+db.users.insertOne({
+  name: "Thiru",
+  email: "thiru@email.com",
+  balance: 10000
+})
+```
+
+Response:
+
+```json
+{
+  acknowledged: true,
+  insertedId: ObjectId("...")
+}
+```
+
+MongoDB auto-generates `_id`.
+
+---
+
+## 🔥 Real Production Example
+
+Imagine:
+User registers in banking app.
+
+You store:
+
+```js
+db.users.insertOne({
+  name: "Rahul",
+  email: "rahul@gmail.com",
+  kycStatus: "PENDING",
+  createdAt: new Date()
+})
+```
+
+No schema migration required.
+
+---
+
+# 6️⃣ READ Operation
+
+## Find All
+
+```js
+db.users.find()
+```
+
+---
+
+## Find with Condition
+
+```js
+db.users.find({ name: "Thiru" })
+```
+
+---
+
+## Comparison Operators
+
+Find users with balance > 5000
+
+```js
+db.users.find({ balance: { $gt: 5000 } })
+```
+
+Other operators:
+
+* $lt
+* $gte
+* $lte
+* $in
+* $ne
+
+---
+
+# 7️⃣ UPDATE Operation
+
+## Update One
+
+```js
+db.users.updateOne(
+  { name: "Thiru" },
+  { $set: { balance: 15000 } }
+)
+```
+
+⚠ Important:
+Always use `$set`
+Otherwise entire document gets replaced.
+
+---
+
+## Real Banking Example
+
+User KYC approved:
+
+```js
+db.users.updateOne(
+  { email: "rahul@gmail.com" },
+  { $set: { kycStatus: "VERIFIED" } }
+)
+```
+
+---
+
+# 8️⃣ DELETE Operation
+
+```js
+db.users.deleteOne({ name: "Thiru" })
+```
+
+Or:
+
+```js
+db.users.deleteMany({ kycStatus: "PENDING" })
+```
+
+---
+
+# 9️⃣ Difference from SQL (Important)
+
+SQL:
+
+```sql
+UPDATE users SET balance=15000 WHERE name='Thiru';
+```
+
+MongoDB:
+
+```js
+{ $set: { balance: 15000 } }
+```
+
+MongoDB uses **operators** instead of plain syntax.
+
+---
+
+# 🔟 Projection (Important for Performance)
+
+Return only selected fields:
+
+```js
+db.users.find(
+  { balance: { $gt: 5000 } },
+  { name: 1, balance: 1 }
+)
+```
+
+Why important?
+
+In production:
+
+* Large documents
+* Avoid transferring unnecessary data
+* Improve performance
+
+---
+
+# 1️⃣1️⃣ Insert Many
+
+```js
+db.users.insertMany([
+  { name: "A", balance: 1000 },
+  { name: "B", balance: 2000 }
+])
+```
+
+---
+
+# 1️⃣2️⃣ Replace Document (Dangerous)
+
+```js
+db.users.replaceOne(
+  { name: "A" },
+  { name: "A", balance: 5000 }
+)
+```
+
+⚠ This replaces entire document.
+
+Used carefully in production.
+
+---
+
+# 🔥 Real Production Scenario
+
+Let’s say:
+
+You’re building transaction logs.
+
+You might insert:
+
+```js
+db.transactions.insertOne({
+  txnId: "T1001",
+  userId: "U100",
+  amount: 500,
+  status: "SUCCESS",
+  timestamp: new Date(),
+  metadata: {
+    merchant: "Amazon",
+    category: "Shopping"
+  }
+})
+```
+
+Why MongoDB good here?
+
+* Metadata changes often
+* Structure flexible
+* High volume writes
+* Easy scaling
+
+---
+
+# 🧠 After Part 3 You Should Know
+
+✔ How to create database
+✔ Insert documents
+✔ Query with conditions
+✔ Update safely
+✔ Delete documents
+✔ Use projections
+✔ Basic operators
+
+---
+
+# 🎯 Interview Question
+
+What happens if you run updateOne() without $set?
+
+Answer:
+Entire document gets replaced.
+ 
