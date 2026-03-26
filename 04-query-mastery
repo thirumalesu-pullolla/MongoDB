@@ -1,0 +1,356 @@
+
+In real systems:
+
+* Data is large
+* Documents are nested
+* Arrays are common
+* Performance matters
+* Queries must be optimized
+
+We’ll cover:
+
+1. Comparison operators
+2. Logical operators
+3. Array queries
+4. Nested document queries
+5. Real banking production examples
+6. Query performance mindset
+
+---
+
+# 🟢 1️⃣ Comparison Operators (Real Scenario)
+
+Imagine a **Banking App**.
+
+Collection: `transactions`
+
+Example document:
+
+```json
+{
+  "txnId": "T1001",
+  "userId": "U100",
+  "amount": 7500,
+  "status": "SUCCESS",
+  "timestamp": ISODate("2026-03-26T10:00:00Z")
+}
+```
+
+---
+
+## 🎯 Scenario 1: Find transactions above 5000
+
+```js
+db.transactions.find({ amount: { $gt: 5000 } })
+```
+
+Used in:
+
+* Fraud detection
+* High value transaction monitoring
+
+---
+
+## 🎯 Scenario 2: Find transactions between 1000 and 10000
+
+```js
+db.transactions.find({
+  amount: { $gte: 1000, $lte: 10000 }
+})
+```
+
+Used in:
+
+* Cashback calculation
+* Reward eligibility
+
+---
+
+## 🎯 Scenario 3: Find transactions NOT successful
+
+```js
+db.transactions.find({ status: { $ne: "SUCCESS" } })
+```
+
+Used in:
+
+* Retry processing
+* Alert generation
+
+---
+
+# 🟢 2️⃣ Logical Operators (Real Banking Example)
+
+Suppose fraud team says:
+
+> Show transactions where
+> amount > 10000
+> AND status = SUCCESS
+
+```js
+db.transactions.find({
+  $and: [
+    { amount: { $gt: 10000 } },
+    { status: "SUCCESS" }
+  ]
+})
+```
+
+But actually MongoDB automatically ANDs conditions:
+
+```js
+db.transactions.find({
+  amount: { $gt: 10000 },
+  status: "SUCCESS"
+})
+```
+
+---
+
+## 🎯 OR Scenario
+
+Show transactions:
+
+* amount > 20000
+  OR
+* status = FAILED
+
+```js
+db.transactions.find({
+  $or: [
+    { amount: { $gt: 20000 } },
+    { status: "FAILED" }
+  ]
+})
+```
+
+Used in:
+
+* Alert dashboards
+* Risk scoring
+
+---
+
+# 🟢 3️⃣ Working with Arrays (Very Common in Production)
+
+Example user document:
+
+```json
+{
+  "userId": "U100",
+  "name": "Rahul",
+  "accounts": ["SAVINGS", "CURRENT", "LOAN"]
+}
+```
+
+---
+
+## 🎯 Find users who have LOAN account
+
+```js
+db.users.find({ accounts: "LOAN" })
+```
+
+MongoDB automatically checks inside array.
+
+---
+
+## 🎯 Find users with multiple conditions inside array
+
+Example:
+
+```json
+{
+  "userId": "U200",
+  "devices": [
+    { "type": "Android", "version": "13" },
+    { "type": "iOS", "version": "16" }
+  ]
+}
+```
+
+Find users who used Android device:
+
+```js
+db.users.find({
+  "devices.type": "Android"
+})
+```
+
+Very powerful.
+
+Used in:
+
+* Device tracking
+* Login analytics
+* Security checks
+
+---
+
+# 🟢 4️⃣ Nested Document Queries
+
+Example transaction:
+
+```json
+{
+  "txnId": "T2001",
+  "metadata": {
+    "merchant": "Amazon",
+    "category": "Shopping"
+  }
+}
+```
+
+---
+
+## 🎯 Find all Amazon transactions
+
+```js
+db.transactions.find({
+  "metadata.merchant": "Amazon"
+})
+```
+
+Used in:
+
+* Merchant analytics
+* Spend analysis
+* Business dashboards
+
+---
+
+# 🟢 5️⃣ Projection in Production (Performance Critical)
+
+Imagine transaction document is 2KB large.
+
+But dashboard only needs:
+
+* txnId
+* amount
+* status
+
+Use projection:
+
+```js
+db.transactions.find(
+  { amount: { $gt: 5000 } },
+  { txnId: 1, amount: 1, status: 1 }
+)
+```
+
+Why important?
+
+In real production:
+
+* Millions of documents
+* Network bandwidth matters
+* Avoid sending unnecessary data
+
+This reduces:
+
+* Response size
+* Memory usage
+* API latency
+
+---
+
+# 🟢 6️⃣ Sorting (Very Common in APIs)
+
+Show latest transactions first:
+
+```js
+db.transactions.find().sort({ timestamp: -1 })
+```
+
+* 1 → ascending
+* -1 → descending
+
+Used in:
+
+* Transaction history API
+* Admin dashboards
+
+---
+
+# 🟢 7️⃣ Limiting Results (Pagination)
+
+Production APIs never return full dataset.
+
+```js
+db.transactions.find()
+  .sort({ timestamp: -1 })
+  .limit(10)
+```
+
+Used in:
+
+* Mobile app transaction history
+* Infinite scrolling
+
+---
+
+# 🟢 8️⃣ Real Production Example — Fraud Detection Query
+
+Fraud rule:
+
+* Amount > 20000
+* AND location different from last login
+* AND device not recognized
+
+Query might look like:
+
+```js
+db.transactions.find({
+  amount: { $gt: 20000 },
+  "device.recognized": false
+})
+```
+
+MongoDB’s document structure makes such checks simple.
+
+In SQL → multiple joins required.
+
+---
+
+# 🟢 9️⃣ Performance Mindset (Very Important)
+
+If collection has 10 million transactions:
+
+This query:
+
+```js
+db.transactions.find({ amount: 5000 })
+```
+
+Without index → full collection scan.
+
+That means:
+
+* Slow query
+* High CPU usage
+* Production slowdown
+
+That’s why next part (INDEXING) is CRITICAL.
+
+---
+
+# 🧠 After Part 4 You Should Understand
+
+✔ Comparison operators
+✔ Logical operators
+✔ Array queries
+✔ Nested document queries
+✔ Sorting & limit
+✔ Projection for performance
+✔ How queries apply in real banking systems
+
+---
+
+# 🎯 Interview Question
+
+Why is projection important in large-scale production systems?
+
+(Think network + memory.)
+
+---
+  
